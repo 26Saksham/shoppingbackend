@@ -54,7 +54,7 @@ router.get("/mostLikeMensProduct", MenMostLikeProduct);
 //     successRedirect: CLIENT_URL,
 //     failureRedirect: "/login/failed",
 //   })
-// );
+// );  
 
 router.post("/userAddingwishlist", addWishlist);
 router.post("/userRemovewishlist", removeWishlist);
@@ -62,7 +62,7 @@ router.post("/userRemovewishlist", removeWishlist);
 router.post("/Payment", addcontactinfo);
 
 router.post("/wishlist", getwishlist);
-router.post("/profile",changeuserdata);
-router.post("/order",getorder);
+router.post("/profile", changeuserdata);
+router.post("/order", getorder);
 router.post("/create-checkout-session", checkOUT);
 export default router;

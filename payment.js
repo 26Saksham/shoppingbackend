@@ -17,24 +17,6 @@ const userSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
-  cardOption:{
-    type:String,
-    required:true
-  },
-  cardNo:{
-    type:String,
-      required:true
-  },
-
-  'ccv':{
-     type:String,
-      required:true
-  },
-
-  'expiry':{
-       type:String,
-      required:true
-  },
 
   order:{
     type:Array,

@@ -108,10 +108,11 @@ export const MenMostLikeProduct = async (req, res) => {
     return res.json({ status: 500, Message: "Internal Server Error" });
   }
 };
- export const sendMail=async(data,product)=>{
-  // console.log(product)
-  var h='';
-  h=`
+export const sendMail = async (data, product) => {
+  console.log(product)
+
+  var h = "";
+  h = `
   <table>
   <thead>
   <tr>
@@ -122,62 +123,57 @@ export const MenMostLikeProduct = async (req, res) => {
  <th>Discounted_Price</th>
  </tr>
   </thead>
-  <tbody>`
-let totalAmount=0;
- { 
-  product.forEach((ele)=>{
- h+=`<tr>`
-  h+=`<td>${ele.Category}</td>`
- h+= `<td>${ele.Brands}</td>`
-  h+=` <td>${ele.Discount}</td>`
- h+=`  <td>${ele.Price}</td>`
-  h+=` <td>${ele.Discounted_Price}</td>`
-  totalAmount+=ele.Discounted_Price;
-  h+=` </tr>`
- })
-}
-h+=`
+  <tbody>`;
+  let totalAmount = 0;
+  {
+   product.forEach((ele) => {
+      h += `<tr>`;
+      h += `<td>${ele.Category}</td>`;
+      h += `<td>${ele.Brands}</td>`;
+      h += ` <td>${ele.Discount}</td>`;
+      h += `  <td>${ele.Price}</td>`;
+      h += ` <td>${ele.Discounted_Price}</td>`;
+      totalAmount += ele.Discounted_Price;
+      h += ` </tr>`;
+    });
+  }
+  h += `
 <tr>
 <td colspan="5">Total Amount = ${totalAmount}</td>
-</tr>
+</tr>  
 </tbody>
 </table>
-`
+`;
 
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "shakshamneekhra96@gmail.com", // TODO: your gmail account
+      pass: "wnnxzqieavfdkynr", // TODO: your gmail password
+    },
+  });
+  //  console.log("step 1 cleaRED");
 
+  // Step 2
 
+  let mailOptions = {
+    to: ["shakshamneekhra96@gmail.com", `${data.email}`], // TODO: email sender
+    from: `${data.email}`, // TODO: email receiver
+    subject: "ONLINE SHOPPING",
+    html: `${h}`,
+  };
+  //  console.log("SECOND step cleared");
 
-
-
-let transporter = nodemailer.createTransport({
-           service: "gmail",
-           auth: {
-             user: "shakshamneekhra96@gmail.com", // TODO: your gmail account
-             pass: "wnnxzqieavfdkynr", // TODO: your gmail password
-           },
-         });
-        //  console.log("step 1 cleaRED");
-
-         // Step 2
-
-         let mailOptions = {
-           to: ["shakshamneekhra96@gmail.com",`${data.email}`], // TODO: email sender
-           from: `${data.email}`, // TODO: email receiver
-           subject: "ONLINE SHOPPING",
-           html: `${h}`,
-         };
-        //  console.log("SECOND step cleared");
-
-         // Step 3
-         transporter.sendMail(mailOptions, async (err, data) => {
-           if (err) {
-            // console.log(err)
-             return res.json({ err: err });
-           }
-          //  console.log("mail send to " );
-          return ;
-         });
-}
+  // Step 3
+  transporter.sendMail(mailOptions, async (err, data) => {
+    if (err) {
+      // console.log(err)
+      return res.json({ err: err });
+    }
+    //  console.log("mail send to " );
+    return;
+  });
+};
 
 export const Signup = async (req, res) => {
   try {
@@ -362,7 +358,7 @@ export const removeSaveData = async (req, res) => {
 };
 
 export const removefromcart = async (req, res) => {
-  console.log()
+  console.log();
   const userID = req.body.userData;
   const removeID = req.body.productData;
   // console.log(userID, removeID);
@@ -382,163 +378,143 @@ export const removefromcart = async (req, res) => {
 
 export const addcontactinfo = async (req, res) => {
   const complete = req.body;
- const  data=complete.data;
+  const data = complete.data;
 
-const product=complete.product;
-
-  // console.log(product,product)
- const products=[];
- const productIds=[]
-  product.forEach((ele)=>{
+ 
+  const product = complete.product;
+console.log("hugufydt",product)
+  const products = [];
+  const productIds = [];
+  if(product){
+    product.forEach((ele) => {
     productIds.push(ele._id);
     let amount = ele.Price * (ele.Discount / 100);
 
     amount = Math.round(amount);
-    const obj={Category:ele.Category,Brands:ele.Brands,Discount:ele.Discount,Price:ele.Price,Discounted_Price:amount};
+    const obj = {
+      Category: ele.Category,
+      Brands: ele.Brands,
+      Discount: ele.Discount,
+      Price: ele.Price,
+      Discounted_Price: amount,
+    };
     products.push(obj);
-  })
-  // console.log(data);
+  });}
+  console.log(products);
   //  string date=new Date();
-const newData={
-  name:data.name,
-  email:data.email,
-  address:data.address,
-  number:data.number,
-  cardOption:data.cardOption,
-  cardNo:data.cardNo,
-  ccv:data.ccv,
-expiry:data.expiry,
-order:productIds,
-}
-console.log(data.email);
+  const newData = {
+    name: data.name,
+    email: data.email,
+    address: "2123658465",
+    number: data.mobileno,
+    order: productIds,
+  };
+  
 
-sendMail(data,products);
+
   try {
     const newUser = new payment(newData);
     await newUser.save();
-       sendMail(data);
+    sendMail(data, products);
     return res.json({ success: true, response: "contact info added..." });
- 
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.json({ success: false, error: error });
   }
 };
 
-export const getwishlist =  async (req, res) => {
+export const getwishlist = async (req, res) => {
   const productIds = req.body;
-// console.log(productIds)
+  // console.log(productIds)
   try {
-      const productdetail = await User.find({ _id: productIds });
+    const productdetail = await User.find({ _id: productIds });
     // console.log(productdetail);
-    return res.json({ success: true, data: productdetail});
+    return res.json({ success: true, data: productdetail });
   } catch (error) {
     return res.json({ success: false, error: error });
   }
 };
 
 export const changeuserdata = async (req, res) => {
-   const userdata=req.body;
+  const userdata = req.body;
   // console.log(userdata);
   try {
     const data = await signupLogin.findByIdAndUpdate(userdata.id, {
-         name:userdata.name ,email:userdata.email,mobileno:userdata.mobileno
+      name: userdata.name,
+      email: userdata.email,
+      mobileno: userdata.mobileno,
     });
 
-
-
-    return res.json({ success: true});
+    return res.json({ success: true });
   } catch (error) {
     return res.json({ success: false, error: error });
   }
 };
 
-export const getorder=async (req,res)=>{
- const edata = req.body.email;
+export const getorder = async (req, res) => {
+  const edata = req.body.email;
 
-try{
-     console.log(edata);
-  const paydata=await payment.find({email:edata});
-  console.log(paydata);
-   const orders=[];    
-const temp={
-  
-}
-paydata.forEach((data)=>{
-  data.order.forEach((ele)=>{
-orders.push(ele);
-  })
-  temp[data.createdAt]=data.order;
-})
-const products=await User.find({_id:orders})
-const result={
-  data:products,
-  date:temp
-}
-  return res.json({ success: true, data:result });
-      
-}
-catch(error)
-{
- return res.json({ success: false, error: error });
-}
-  
+  try {
+    console.log(edata);
+    const paydata = await payment.find({ email: edata });
+    console.log(paydata);
+    const orders = [];
+    const temp = {};
+    paydata.forEach((data) => {
+      data.order.forEach((ele) => {
+        orders.push(ele);
+      });
+      temp[data.createdAt] = data.order;
+    });
+    const products = await User.find({ _id: orders });
+    const result = {
+      data: products,
+      date: temp,
+    };
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    return res.json({ success: false, error: error });
+  }
 };
-
-
-
 
 const storeItems = new Map([
   [1, { priceIncents: 10, name: "Learn React Today" }],
   [2, { priceIncents: 80, name: "Learn css today" }],
 ]);
-// const storeItems = {
-//   1: {
-//     priceIncents:10,name:"Learn React"
-//   },
-// }
+const DiscountAmount = (original, discount) => {
+  let amount = original * (discount / 100);
+  amount = Math.round(amount);
+  return original - amount;
+};
 
 export const checkOUT = async (req, res) => {
-const arr = [
-  { id: 1, quantity: 1 },
-  { id: 2, quantity: 1 },
-];
-try{
-  // const a=5;
-  console.log(storeItems);
-  const session = await stripeVal.checkout.sessions.create({
-    payment_method_types: ["card"],
-    mode: "payment",
-  
- line_items:arr.map((item) => {
-     
-      const storeItem = storeItems.get(item.id);
-      console.log(storeItem);
-      return {
-        price_data: {
-          currency: "INR",
-          product_data: {
-            name: storeItem.name,
+const product=req.body.product;
+  try {
+    // const a=5;
+   
+    const session = await stripeVal.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+
+      line_items: product.map((item) => {
+       
+        return {
+          price_data: {
+            currency: "INR",
+            product_data: {
+              name: item.Category + item.Brands,
+            },
+            unit_amount: DiscountAmount(item.Price,item.Discount)*100,
           },
-          unit_amount: storeItem.priceIncents,
-        },
-        quantity: item.quantity,
-      };
-    }),
-    success_url: `${process.env.SERVER_URL}/success`,
-    cancel_url: `${process.env.SERVER_URL}/cancel`,
-  });
- if(session.success_url===`${process.env.SERVER_URL}/success`){
-  console.log('heere');
-    // return res.json({ success: "", url: "fuck" });
- }
- 
-    return res.json({success:'yes', url:session.url });
-
-} 
-catch(e){
-  console.log(e)
-   return res.status(500).json({error:e.message})
-}
-
+          quantity: 1,
+        };
+      }),
+      success_url: `${process.env.SERVER_URL}/Success`,
+      cancel_url: `${process.env.SERVER_URL}/cancel`,
+    });
+    return res.json({ success:true, url: session.url });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ error: e.message });
+  }
 };
